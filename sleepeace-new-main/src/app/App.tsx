@@ -17,6 +17,7 @@ import AIChatSupportScreen from './components/AIChatSupportScreen';
 import AIChatSupportScreenIslamic from './components/AIChatSupportScreenIslamic';
 import MoodHistoryScreen from './components/MoodHistoryScreen';
 import QiblaHistoryScreen from './components/QiblaHistoryScreen';
+import GratitudeWall from './components/GratitudeWall';
 import SettingsModeSwitching from './components/SettingsModeSwitching';
 import SettingsModeSwitchingIslamic from './components/SettingsModeSwitchingIslamic';
 import LanguageSelection from './components/LanguageSelection';
@@ -41,6 +42,8 @@ type Screen =
   | 'ai-chat-islamic'
   | 'mood-history-general'
   | 'mood-history-islamic'
+  | 'gratitude-general'
+  | 'gratitude-islamic'
   | 'settings'
   | 'settings-islamic'
   | 'language-selection';
@@ -124,6 +127,10 @@ export default function App() {
     return <MoodHistoryScreen navigate={navigate} currentLanguage={currentLanguage} />;
   } else if (currentScreen === 'mood-history-islamic') {
     return <QiblaHistoryScreen navigate={navigate} currentLanguage={currentLanguage} />;
+  } else if (currentScreen === 'gratitude-general') {
+    return <GratitudeWall navigate={navigate} currentLanguage={currentLanguage} mode="general" />;
+  } else if (currentScreen === 'gratitude-islamic') {
+    return <GratitudeWall navigate={navigate} currentLanguage={currentLanguage} mode="islamic" />;
   } else if (currentScreen === 'settings') {
     return <SettingsModeSwitching navigate={navigate} currentMode={selectedMode as 'general' | 'islamic'} userInfo={userInfo} onLogout={handleLogout} currentLanguage={currentLanguage} />;
   } else if (currentScreen === 'settings-islamic') {

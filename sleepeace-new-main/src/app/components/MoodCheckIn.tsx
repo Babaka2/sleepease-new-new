@@ -89,21 +89,8 @@ export default function MoodCheckIn({ navigate, currentLanguage, userName }: Moo
           <h1 className="text-white text-2xl font-light mt-1">{userName || t.guest}</h1>
         </div>
 
-        {/* Main question card */}
-        <div className="rounded-3xl bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-xl border border-white/20 p-6 mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-400/20 to-purple-400/20 flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-white/80" />
-          </div>
-          <h3 className="text-white text-xl font-medium text-center mb-2 whitespace-pre-line">
-            {t.question}
-          </h3>
-          <p className="text-white/50 text-sm text-center">
-            {t.subtitle}
-          </p>
-        </div>
-
-        {/* Emotion Buttons */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        {/* Emotions Grid */}
+        <div className="grid grid-cols-2 gap-4">
           <EmotionButton
             label={t.calmPeaceful}
             emotion="calm"

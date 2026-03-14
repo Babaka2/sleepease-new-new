@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Send, Sparkles } from 'lucide-react';
 import PhoneFrame from './PhoneFrame';
 import { Language } from '../translations';
+import { api } from '../../services/api';
 
 type Screen =
   | 'mode-selection'
@@ -57,13 +58,7 @@ const AIChatSupportScreen = ({ navigate, currentLanguage, userName }: AIChatSupp
     setIsTyping(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: currentInput, mode: "general" }),
-      });
-
-      const data = await response.json();
+      const data = await api.chat(currentInput, 'general');
 
       setMessages(prev => [...prev, {
         id: Date.now() + 1,

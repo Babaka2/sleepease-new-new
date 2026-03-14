@@ -12,6 +12,7 @@ import {
   Heart
 } from 'lucide-react';
 import PhoneFrame from './PhoneFrame';
+import { api } from '../../services/api';
 
 type Message = {
   id: number;
@@ -85,13 +86,7 @@ export default function AIChatSupportScreenIslamic({ navigate }: AIChatSupportSc
     setIsTyping(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userText, mode: "islamic" }),
-      });
-
-      const data = await response.json();
+      const data = await api.chat(userText, 'islamic');
       const botTimestamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
       setMessages(prev => [...prev, {

@@ -20,6 +20,9 @@ import {
 } from "lucide-react";
 import PhoneFrame from "./PhoneFrame";
 import { Language, translations } from "../translations";
+import { UserInfo } from '../App';
+import { api } from '../../services/api';
+import { useState, useEffect } from 'react';
 
 type Screen =
   | 'mode-selection'
@@ -33,18 +36,36 @@ type Screen =
   | 'ai-chat-islamic'
   | 'mood-history-general'
   | 'mood-history-islamic'
-  | 'settings-islamic';
+  | 'settings-islamic'
+  | 'gratitude-islamic';
 
 type Mode = 'general' | 'islamic' | null;
 
 interface IslamicModeHomeProps {
   navigate: (screen: Screen, mode?: Mode) => void;
-  userInfo: { name: string; email: string };
+  userInfo: UserInfo;
   currentLanguage: Language;
 }
 
 export default function IslamicModeHome({ navigate, userInfo, currentLanguage }: IslamicModeHomeProps) {
   const t = translations[currentLanguage].islamicHome;
+  const [streak, setStreak] = useState(0);
+  const [sleepIndex, setSleepIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const streakData = await api.getStreak();
+        setStreak(streakData.streak || 0);
+        
+        const sleepData = await api.getSleepIndex();
+        setSleepIndex(sleepData.index || 0);
+      } catch (error) {
+        console.error("Error fetching home data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <PhoneFrame>
@@ -79,14 +100,14 @@ export default function IslamicModeHome({ navigate, userInfo, currentLanguage }:
           {/* Prayer Streak */}
           <div className="rounded-2xl bg-gradient-to-br from-emerald-500/25 to-teal-500/25 backdrop-blur-xl border border-emerald-400/20 p-3">
             <Flame className="w-5 h-5 text-emerald-400 mb-2" />
-            <p className="text-white text-xl font-bold">12</p>
+            <p className="text-white text-xl font-bold">{streak}</p>
             <p className="text-emerald-100/70 text-xs">{t.dayStreak}</p>
           </div>
 
           {/* Spiritual Score */}
           <div className="rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-500/25 backdrop-blur-xl border border-amber-400/20 p-3">
             <TrendingUp className="w-5 h-5 text-yellow-400 mb-2" />
-            <p className="text-white text-xl font-bold">92%</p>
+            <p className="text-white text-xl font-bold">{sleepIndex}%</p>
             <p className="text-emerald-100/70 text-xs">{t.prayers}</p>
           </div>
 
@@ -161,22 +182,35 @@ export default function IslamicModeHome({ navigate, userInfo, currentLanguage }:
         <div className="mb-6">
           <h3 className="text-white text-sm font-medium mb-3">{t.nextPrayer}</h3>
 
-          <div className="rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-400/20 backdrop-blur-xl p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center">
-                <span className="text-2xl">🕌</span>
-              </div>
-              <div>
-                <p className="text-white text-sm font-medium">{t.fajrPrayer}</p>
-                <p className="text-emerald-100/60 text-xs">{t.tomorrowMorning}</p>
+          <div className="rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-400/20 backdrop-blur-xl p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-yellow-400/20 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-yellow-400" />
+                </div>
+                <div>
+                  <p className="text-white text-sm font-medium">{streak} {t.dayStreak}</p>
+                  <p className="text-white/40 text-[10px]">{t.prayers}</p>
+                </div>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-white text-lg font-semibold">5:42 AM</p>
-              <p className="text-emerald-300/80 text-xs flex items-center justify-end gap-1">
-                <Clock className="w-3 h-3" />
-                {t.inTime}
-              </p>
+            <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center">
+                  <span className="text-2xl">🕌</span>
+                </div>
+                <div>
+                  <p className="text-white text-sm font-medium">{t.fajrPrayer}</p>
+                  <p className="text-emerald-100/60 text-xs">{t.tomorrowMorning}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-white text-lg font-semibold">5:42 AM</p>
+                <p className="text-emerald-300/80 text-xs flex items-center justify-end gap-1">
+                  <Clock className="w-3 h-3" />
+                  {t.inTime}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -243,6 +277,18 @@ export default function IslamicModeHome({ navigate, userInfo, currentLanguage }:
                 <Wind className="w-5 h-5 text-emerald-300/70 mb-1" />
               </div>
             </button>
+            <QuickAction 
+              icon={<Heart className="w-6 h-6 text-red-300" />}
+              title={t.gratitudeWall}
+              desc="Refresh your soul"
+              onClick={() => navigate('gratitude-islamic')}
+            />
+            <QuickAction 
+              icon={<MessageCircle className="w-6 h-6 text-emerald-400" />}
+              title={t.aiGuidance}
+              desc={t.aiDesc}
+              onClick={() => navigate('ai-chat-islamic')}
+            />
           </div>
         </div>
 
@@ -254,18 +300,11 @@ export default function IslamicModeHome({ navigate, userInfo, currentLanguage }:
           </div>
 
           <div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/30 to-green-500/30 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-white text-sm font-medium">{t.growingStronger}</p>
-                <p className="text-emerald-100/70 text-xs">{t.spiritualGrowth}</p>
-              </div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white text-sm font-medium">{t.growingStronger}</h3>
+              <span className="text-yellow-400 text-xs font-medium">+{sleepIndex}% {t.spiritualGrowth}</span>
             </div>
-
-            {/* Mini chart */}
-            <div className="flex items-end justify-between gap-2 h-16">
+            <div className="h-24 flex items-end justify-between gap-1 mb-3">
               {[65, 55, 75, 70, 85, 80, 92].map((height, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1">
                   <div className="w-full bg-gradient-to-t from-emerald-500/40 to-teal-500/40 rounded-t-lg transition-all" style={{ height: `${height}%` }} />
@@ -348,5 +387,22 @@ function IslamicGoalItem({ icon, label, completed }: { icon: React.ReactNode; la
       <p className={`text-sm flex-1 ${completed ? 'text-white/90 line-through' : 'text-white/80'
         }`}>{label}</p>
     </div>
+  );
+}
+
+function QuickAction({ icon, title, desc, onClick }: { icon: React.ReactNode; title: string; desc: string; onClick?: () => void }) {
+  return (
+    <button 
+      onClick={onClick}
+      className="rounded-3xl bg-emerald-700/60 backdrop-blur-xl border border-white/10 p-5 flex flex-col justify-between min-h-[140px] transition-all hover:bg-emerald-700/70 active:scale-95 text-left"
+    >
+      <div className="w-12 h-12 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center mb-4">
+        {icon}
+      </div>
+      <div>
+        <h3 className="text-white text-base font-medium leading-tight">{title}</h3>
+        <p className="text-emerald-100/60 text-xs mt-1">{desc}</p>
+      </div>
+    </button>
   );
 }

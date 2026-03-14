@@ -22,6 +22,9 @@ import {
 } from "lucide-react";
 import PhoneFrame from "./PhoneFrame";
 import { Language, translations } from "../translations";
+import { UserInfo } from '../App';
+import { api } from '../../services/api';
+import { useState, useEffect } from 'react';
 
 type Screen =
   | 'mode-selection'
@@ -35,18 +38,36 @@ type Screen =
   | 'ai-chat-islamic'
   | 'mood-history-general'
   | 'mood-history-islamic'
+  | 'gratitude-general'
   | 'settings';
 
 type Mode = 'general' | 'islamic' | null;
 
 interface GeneralModeHomeProps {
   navigate: (screen: Screen, mode?: Mode) => void;
-  userInfo: { name: string; email: string };
+  userInfo: UserInfo;
   currentLanguage: Language;
 }
 
 export default function GeneralModeHome({ navigate, userInfo, currentLanguage }: GeneralModeHomeProps) {
   const t = translations[currentLanguage].generalHome;
+  const [streak, setStreak] = useState(0);
+  const [sleepIndex, setSleepIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const streakData = await api.getStreak();
+        setStreak(streakData.streak || 0);
+        
+        const sleepData = await api.getSleepIndex();
+        setSleepIndex(sleepData.index || 0);
+      } catch (error) {
+        console.error("Error fetching home data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <PhoneFrame>
@@ -82,7 +103,7 @@ export default function GeneralModeHome({ navigate, userInfo, currentLanguage }:
           {/* Streak */}
           <div className="rounded-2xl bg-gradient-to-br from-orange-500/25 to-red-500/25 backdrop-blur-xl border border-orange-400/20 p-3">
             <Flame className="w-5 h-5 text-orange-400 mb-2" />
-            <p className="text-white text-xl font-bold">7</p>
+            <p className="text-white text-xl font-bold">{streak}</p>
             <p className="text-white/70 text-xs">{t.streak}</p>
           </div>
 
@@ -212,6 +233,18 @@ export default function GeneralModeHome({ navigate, userInfo, currentLanguage }:
                 <Sparkles className="w-5 h-5 text-white/60 mb-1" />
               </div>
             </button>
+            <QuickAction 
+              icon={<Heart className="w-6 h-6 text-pink-400" />}
+              title={t.gratitudeWall}
+              desc="8 entries"
+              onClick={() => navigate('gratitude-general')}
+            />
+            <QuickAction 
+              icon={<MessageCircle className="w-6 h-6 text-blue-400" />}
+              title={t.aiSupport}
+              desc={t.aiDesc}
+              onClick={() => navigate('ai-chat')}
+            />
           </div>
         </div>
 
@@ -223,13 +256,25 @@ export default function GeneralModeHome({ navigate, userInfo, currentLanguage }:
           </div>
 
           <div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500/30 to-emerald-500/30 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-green-400" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
+                  <Flame className="w-5 h-5 text-orange-400" />
+                </div>
+                <div>
+                  <p className="text-white text-sm font-medium">{streak} {t.streak}</p>
+                  <p className="text-white/40 text-[10px]">{t.progress}</p>
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="text-white text-sm font-medium">{t.sleepQuality}</p>
-                <p className="text-white/60 text-xs">{t.sleepQualityImprovement}</p>
+
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                  <Moon className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-white text-sm font-medium">{sleepIndex}% {t.sleepQuality}</p>
+                  <p className="text-white/40 text-[10px]">{t.sleepQualityImprovement}</p>
+                </div>
               </div>
             </div>
 
@@ -305,5 +350,22 @@ function GoalItem({ icon, label, completed }: { icon: React.ReactNode; label: st
       <p className={`text-sm flex-1 ${completed ? 'text-white/90 line-through' : 'text-white/80'
         }`}>{label}</p>
     </div>
+  );
+}
+
+function QuickAction({ icon, title, desc, onClick }: { icon: React.ReactNode; title: string; desc: string; onClick?: () => void }) {
+  return (
+    <button 
+      onClick={onClick}
+      className="rounded-3xl bg-slate-700/60 backdrop-blur-xl border border-white/10 p-5 flex flex-col justify-between min-h-[140px] transition-all hover:bg-slate-700/70 active:scale-95 text-left"
+    >
+      <div className="w-12 h-12 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center mb-4">
+        {icon}
+      </div>
+      <div>
+        <h3 className="text-white text-base font-medium leading-tight">{title}</h3>
+        <p className="text-white/60 text-xs mt-1">{desc}</p>
+      </div>
+    </button>
   );
 }

@@ -56,6 +56,8 @@ export const translations = {
       profile: 'Profile',
       tipTitle: 'Tip of the Day',
       tipContent: 'Try deep breathing for 5 minutes before bed to calm your mind',
+      gratitudeWall: 'Gratitude Wall',
+      dailyJournal: 'Daily Journal',
     },
     // Explore (Mood History)
     explore: {
@@ -282,6 +284,8 @@ export const translations = {
       needGuidance: 'Need Spiritual Guidance?',
       chatWithAI: 'Chat with our Islamic AI assistant',
       islamicLibrary: 'Islamic Library',
+      gratitudeWall: 'Gratitude Wall',
+      dailyJournal: 'Spiritual Journal',
     },
     // Login & Signup
     login: {
